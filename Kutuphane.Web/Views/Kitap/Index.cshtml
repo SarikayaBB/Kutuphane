@@ -2,7 +2,7 @@
 
 
 <div class="table-responsive">
-    <table class="table table-primary table-striped">
+    <table class="table table-primary table-striped col-6">
         <thead>
             <tr>
                 <th scope="col">Kitap Adi</th>
@@ -51,6 +51,7 @@
                 success: function (res) {
                     $("#txtAd"+res.id).prop('contentEditable', true);
                     $("#txtOzet"+res.id).prop('contentEditable', true);
+                    $(".editButtons").unbind();
                 }
             });
         }
