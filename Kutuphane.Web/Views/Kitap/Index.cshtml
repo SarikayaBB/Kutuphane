@@ -2,11 +2,12 @@
 
 
 <div class="table-responsive">
-    <table class="table table-primary table-striped col-6">
+    <table id="kitapTable" class="table table-primary table-striped col-6">
         <thead>
             <tr>
                 <th scope="col">Kitap Adi</th>
                 <th scope="col">Ozet</th>
+                <th scope="col">Kategori</th>
                 <th scope="col">İşlemler</th>
 
             </tr>
@@ -20,38 +21,81 @@
 @section Scripts{
     <script type="text/javascript">
 
-        $(document).ready(function () {
+        function loadTable() {
+
             $.ajax({
                 type: "GET",
                 url: "Kitap/GetAll",
                 success: function (res) {
-
+                    console.log(res);
                     for (let i of res) {
                         var satir = `
-                                <tr>
-                                    <td id="txtAd${i.id}">${i.ad}</td>
-                                    <td id="txtOzet${i.id}">${i.ozet}</td>
-                                    <td> <a class="btn btn-primary editButtons" onClick="duzenle('${i.id}')"> Düzenle </a> </td>
-                                </tr>`;
+                                                        <tr>
+                                                            <td id="txtAd${i.id}">${i.ad}</td>
+                                                            <td id="txtOzet${i.id}">${i.ozet}</td>
+                                                            <td id="txtKategori${i.kategori.id}">${i.kategori.ad}</td>
+                                                            <td> <a id="btnEdit${i.id}" class="btn btn-primary" onClick="duzenle('${i.id}')"> Düzenle </a> </td>
+                                                        </tr>`;
                         $("#tableBody").append(satir);
                     }
                 }
             });
+        }
+
+        $(document).ready(function () {
+            loadTable();
+            $(".td").css("width", "50%");
         });
         function duzenle(KitapId) {
             console.log("duzenle tiklandi");
-           var veri = {
-                    kitapId: KitapId
-                };
-
-            $.ajax({              
+            var veri = {
+                kitapId: KitapId
+            };
+            $.ajax({
                 type: "POST",
                 url: "Kitap/FindById",
-                data:veri,
+                data: veri,
                 success: function (res) {
-                    $("#txtAd"+res.id).prop('contentEditable', true);
-                    $("#txtOzet"+res.id).prop('contentEditable', true);
-                    $(".editButtons").unbind();
+                    $("#txtAd" + res.id).prop('contentEditable', true);
+                    $("#txtOzet" + res.id).prop('contentEditable', true);
+                    $("#txtKategori" + res.kategori.id).html('');
+
+                    $("#txtKategori" + res.kategori.id).html(`
+                <select  id="txtSelect${res.kategori.id}">
+          <option value="Bilim Kurgu">Bilim Kurgu</option>
+          <option value="Fantastik">Fantastik</option>
+          <option value="Roman">Roman</option>
+        </select>`);
+                    $(`#txtSelect${res.kategori.id} option:selected`).text();
+                    // $("#txtAd" + res.id).css("position","absolute");
+                    // $("#kitapTable").css("box-sizing","border-box");
+                    $("#btnEdit" + res.id).unbind();
+                    $("#btnEdit" + res.id).removeClass("btn-primary").addClass("btn-success");
+                    $("#btnEdit" + res.id).html("Kaydet");
+                    if ($("#txtAd" + res.id).html() != res.ad || $("#txtOzet" + res.id) != res.ozet) {
+                        $("#btnEdit" + res.id).click(function () {
+                            var editText = {
+                                ozet: $("#txtOzet" + res.id).html(),
+                                kitapAdi: $("#txtAd" + res.id).html(),
+                                kitapId: res.id,
+                                kategori: $(`#txtSelect${res.kategori.id} option:selected`).text()
+                            };
+                            $.ajax({
+                                type: "POST",
+                                url: "Kitap/Edit",
+                                data: editText,
+                                success: function (resEdit) {
+                                    $("#txtAd" + res.id).prop('contentEditable', false);
+                                    $("#txtOzet" + res.id).prop('contentEditable', false);
+                                    $("#btnEdit" + res.id).removeClass("btn-success").addClass("btn-primary");
+                                    $("#btnEdit" + res.id).html("Düzenle");
+                                    $("#btnEdit" + res.id).unbind();
+                                     $("#txtKategori" + res.kategori.id).html('');
+                                   $("#txtKategori" + res.kategori.id).html(resEdit.kategori.ad);
+                                }
+                            });
+                        });
+                    }
                 }
             });
         }

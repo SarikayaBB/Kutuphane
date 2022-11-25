@@ -50,7 +50,7 @@ namespace Kutuphane.Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Kategoriler");
+                    b.ToTable("Kategoriler", (string)null);
                 });
 
             modelBuilder.Entity("Kutuphane.Web.Models.Kitap", b =>
@@ -86,7 +86,7 @@ namespace Kutuphane.Web.Migrations
 
                     b.HasIndex("KategoriId");
 
-                    b.ToTable("Kitaplar");
+                    b.ToTable("Kitaplar", (string)null);
                 });
 
             modelBuilder.Entity("Kutuphane.Web.Models.Kitap", b =>
