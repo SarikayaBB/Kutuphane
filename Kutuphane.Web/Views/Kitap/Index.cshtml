@@ -25,7 +25,7 @@
                 type: "GET",
                 url: "Kitap/GetAll",
                 success: function (res) {
-                    console.log(res);
+                   
                     for (let i of res) {
                         var satir = `
                                 <tr>
@@ -42,6 +42,7 @@
         $(document).ready(function () {
             loadTable();
             $(".td").css("width", "50%");
+            
         });
         function duzenle(KitapId) {
             var veri = {
@@ -56,14 +57,29 @@
                     $("#txtOzet" + res.id).prop('contentEditable', true);
 
                     $("#txtKategori" + res.id).html('');
-                    let kategoriList = kategoriler();
-                    $("#txtKategori" + res.id).html(`
-                        <select  id="txtSelect${res.kategori.id}">
-                  <option value="Bilim Kurgu">Bilim Kurgu</option>
-                  <option value="Fantastik" selected>Fantastik</option>
-                  <option value="Roman">Roman</option>
-                </select>`);
-                    $(`#txtSelect${res.kategori.id} option:selected`).text();
+                  
+                           $.ajax({
+                type: "GET",
+                url: "Kategori/GetAll",
+                success: function (resKat) {
+                            $("#txtKategori" + res.id).append(` <select id="txtSelect${res.id}">`);
+                            for(let item in resKat){
+                                $("#txtKategori" + res.id).append(`<option value="AD2">AD</option>`);
+                            }
+                            ("#txtKategori" + res.id).append(`</select>`);
+                }
+            });
+                   
+
+
+
+                //    $("#txtKategori" + res.id).html(`
+                //        <select  id="txtSelect${res.kategori.id}">
+                //  <option value="Bilim Kurgu">Bilim Kurgu</option>
+                //  <option value="Fantastik" selected>Fantastik</option>
+                //  <option value="Roman">Roman</option>
+                //</select>`);
+                //    $(`#txtSelect${res.kategori.id} option:selected`).text();
                     // $("#txtAd" + res.id).css("position","absolute");
                     // $("#kitapTable").css("box-sizing","border-box");
                     $("#btnEdit" + res.id).unbind();
@@ -95,14 +111,8 @@
                 }
             });
         }
-        function kategoriler() {
-            $.ajax({
-                type: "GET",
-                url: "Kategori/GetAll",
-                success: function (res) {
-                    return res;
-                }
-            });
+        function getKategori() {
+    
         }
     </script>
 }
