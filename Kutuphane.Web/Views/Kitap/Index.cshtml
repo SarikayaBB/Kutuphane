@@ -28,12 +28,12 @@
                     console.log(res);
                     for (let i of res) {
                         var satir = `
-                                                <tr>
-                                                    <td id="txtAd${i.id}">${i.ad}</td>
-                                                    <td id="txtOzet${i.id}">${i.ozet}</td>
-                                                    <td id="txtKategori${i.id}">${i.kategori.ad}</td>
-                                                    <td> <a id="btnEdit${i.id}" class="btn btn-primary" onClick="duzenle('${i.id}')"> Düzenle </a> </td>
-                                                </tr>`;
+                                <tr>
+                                    <td id="txtAd${i.id}">${i.ad}</td>
+                                    <td id="txtOzet${i.id}">${i.ozet}</td>
+                                    <td id="txtKategori${i.id}">${i.kategori.ad}</td>
+                                    <td> <a id="btnEdit${i.id}" class="btn btn-primary" onClick="duzenle('${i.id}')"> Düzenle </a> </td>
+                                </tr>`;
                         $("#tableBody").append(satir);
                     }
                 }
@@ -55,27 +55,21 @@
                     $("#txtAd" + res.id).prop('contentEditable', true);
                     $("#txtOzet" + res.id).prop('contentEditable', true);
 
-
+                    $("#txtKategori" + res.id).html('');
                     let kategoriList = kategoriler();
-                    
-                    for (let i = 0; i < kategoriList.length; i++) {
-
-                    }
-
-
-                    //    $("#txtKategori" + res.id).html(`
-                    //        <select  id="txtSelect${res.kategori.id}">
-                    //  <option value="Bilim Kurgu">Bilim Kurgu</option>
-                    //  <option value="Fantastik" selected>Fantastik</option>
-                    //  <option value="Roman">Roman</option>
-                    //</select>`);
+                    $("#txtKategori" + res.id).html(`
+                        <select  id="txtSelect${res.kategori.id}">
+                  <option value="Bilim Kurgu">Bilim Kurgu</option>
+                  <option value="Fantastik" selected>Fantastik</option>
+                  <option value="Roman">Roman</option>
+                </select>`);
                     $(`#txtSelect${res.kategori.id} option:selected`).text();
                     // $("#txtAd" + res.id).css("position","absolute");
                     // $("#kitapTable").css("box-sizing","border-box");
                     $("#btnEdit" + res.id).unbind();
                     $("#btnEdit" + res.id).removeClass("btn-primary").addClass("btn-success");
                     $("#btnEdit" + res.id).html("Kaydet");
-                    if ($("#txtAd" + res.id).html() != res.ad || $("#txtOzet" + res.id) != res.ozet || $("#txtKategori" + res.id).html() != res.kategori.ad) {
+                    if ($("#txtAd" + res.id).html() != res.ad || $("#txtOzet" + res.id) != res.ozet) {
                         $("#btnEdit" + res.id).click(function () {
                             var editText = {
                                 ozet: $("#txtOzet" + res.id).html(),
