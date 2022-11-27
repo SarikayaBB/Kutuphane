@@ -56,15 +56,15 @@
                 for (let i of res) {
                     var td =
                         `
-                                    <tr id="tr${i.id}">
-                                        <td id="txtAd${i.id}"> ${i.ad}</td>
-                                        <td id="txtIsbn${i.id}"> ${i.isbn}</td>
-                                        <td>    <a class="btn btn-primary" id="btnEdit${i.id}" onClick="Duzenle('${i.id}')">Düzenle
-                                                </a>
-                                            <a class="btn btn-danger id="btnDelete${i.id}" onClick="Sil('${i.id}')">Sil</a>
-                                        </td>
-                                    </tr>
-                                `;
+                                                <tr id="tr${i.id}">
+                                                    <td id="txtAd${i.id}"> ${i.ad}</td>
+                                                    <td id="txtIsbn${i.id}"> ${i.isbn}</td>
+                                                        <td>    <button type="button" class="btn btn-primary" OnClientClick="this.disabled=true;" id="btnEdit${i.id}" onClick="Duzenle('${i.id}')">Düzenle
+                                                            </button>
+                                                        <a class="btn btn-danger id="btnDelete${i.id}" onClick="Sil('${i.id}')">Sil</a>
+                                                    </td>
+                                                </tr>
+                                            `;
                     $("#tableBody").append(td);
                 }
             }
@@ -74,6 +74,7 @@
 
     $(document).ready(function () {
         loadTable();
+        
     });
     function Ekle() {
         var veri = {
@@ -107,22 +108,24 @@
         });
     }
 
-   
+
 
     function Duzenle(kategoriId) {
-       
+        
+
+        console.log("Duzenle tiklandi");
+
         $("#txtAd" + kategoriId).prop("contentEditable", true);
         $("#txtAd" + kategoriId).addClass("beingEdited");
-
         $("#txtIsbn" + kategoriId).prop("contentEditable", true);
         $("#txtIsbn" + kategoriId).addClass("beingEdited");
-
-
         $("#btnEdit" + kategoriId).html("Kaydet");
         $("#btnEdit" + kategoriId).removeClass("btn-primary").addClass("btn-success");
-        $("#btnEdit" + kategoriId).off("onClick");
-        $("#btnEdit" + kategoriId).on("click",function (e) {
-                    
+
+
+        $("#btnEdit" + kategoriId).one('click', function (event) {
+            event.stopImmediatePropagation();
+            $("#btnEdit" + kategoriId).off('click');
             console.log("KAYDET TIKLANDI");
             var data = {
                 ad: $("#txtAd" + kategoriId).html(),
@@ -140,8 +143,12 @@
                     $("#txtIsbn" + kategoriId).prop("contentEditable", false);
                     $("#txtIsbn" + kategoriId).removeClass("beingEdited");
                     console.log("EDITED");
+                    $("#btnEdit" + kategoriId).html("Düzenle");
+                    $("#btnEdit" + kategoriId).removeClass("btn-success").addClass("btn-primary");
+                    $("#btnEdit" + kategoriId).off();
+
                 }
-            });
+            })
         });
     }
 
