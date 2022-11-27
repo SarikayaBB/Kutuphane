@@ -1,8 +1,7 @@
 ﻿<div class="table-responsive">
-
-    <table id="kitapTable" class="table table-primary table-striped col-6">
+    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalCreate">Ekle</button>
+    <table id="kitapTable" class="table table-primary col-6">
         <thead>
-            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalCreate">Ekle</button>
             <tr>
                 <th scope="col">Kitap Adi</th>
                 <th scope="col">ISBN</th>
@@ -27,25 +26,25 @@
             <div class="modal-body">
 
                 <div class="container">
-                    
-                        <div class="mb-3 row">
-                            <label for="txtAddAd" class="col-4 col-form-label">Kitap Adı Giriniz: </label>
-                            <div class="col-8">
-                                <input type="text" name="txtAddAd" id="txtAddAd" placeholder="Kitap Adı">
-                            </div>
+
+                    <div class="mb-3 row">
+                        <label for="txtAddAd" class="col-4 col-form-label">Kitap Adı Giriniz: </label>
+                        <div class="col-8">
+                            <input type="text" name="txtAddAd" id="txtAddAd" placeholder="Kitap Adı">
                         </div>
-                        <div class="mb-3 row">
-                            <label for="txtAddOzet" class="col-4 col-form-label">Kitap Özeti Giriniz: </label>
-                            <div class="col-8">
-                                <textarea name="txtAddOzet" id="txtAddOzet" rows="2"></textarea>
-                            </div>
-                        </div> <div class="mb-6 row">
-                            <label for="selectKategoriId" class="col-4 col-form-label">Kategori Seçiniz: </label>
-                            <div class="col-6">
-                                <select id="selectKategoriId"></select>
-                            </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="txtAddOzet" class="col-4 col-form-label">Kitap Özeti Giriniz: </label>
+                        <div class="col-8">
+                            <textarea name="txtAddOzet" id="txtAddOzet" rows="2"></textarea>
                         </div>
-                    
+                    </div> <div class="mb-6 row">
+                        <label for="selectKategoriId" class="col-4 col-form-label">Kategori Seçiniz: </label>
+                        <div class="col-6">
+                            <select id="selectKategoriId"></select>
+                        </div>
+                    </div>
+
                 </div>
             </div>
             <div class="modal-footer">
@@ -66,19 +65,19 @@
 @section Scripts{
     <script type="text/javascript">
 
-        function Ekle(){
+        function Ekle() {
             var veri = {
-            ad:$("#txtAddAd").val(),
-            ozet:$("#txtAddOzet").val(),
-            kategori: $(`#selectKategoriId option:selected`).text()
+                ad: $("#txtAddAd").val(),
+                ozet: $("#txtAddOzet").val(),
+                kategori: $(`#selectKategoriId option:selected`).text()
             };
             console.log($("#txtAddAd").val());
             console.log($("#txtAddOzet").val());
             $.ajax({
-                type:"POST",
-                url:"Kitap/Add",
-                data:veri,
-                success:function(resAdd){
+                type: "POST",
+                url: "Kitap/Add",
+                data: veri,
+                success: function (resAdd) {
                     $("#modalCreate").modal('hide');
                     $("#btnKaydet").unbind();
                     loadTable();
@@ -110,13 +109,13 @@
                 success: function (res) {
                     for (let i of res) {
                         var satir = `
-                                                        <tr id="tr${i.id}">
-                                                            <td id="txtAd${i.id}">${i.ad}</td>
-                                                            <td id="txtISBN${i.id}">${i.kategori.isbn}</td>
-                                                            <td id="txtOzet${i.id}">${i.ozet}</td>
-                                                            <td id="txtKategori${i.id}">${i.kategori.ad}</td>
-                                                            <td> <a id="btnEdit${i.id}" class="btn btn-primary" onClick="duzenle('${i.id}')"> Düzenle </a> <a id="btnSil${i.id}" class="btn btn-danger" onClick="sil('${i.id}')">Sil</a> </td>
-                                                        </tr>`;
+                                                                <tr id="tr${i.id}">
+                                                                    <td id="txtAd${i.id}">${i.ad}</td>
+                                                                    <td id="txtISBN${i.id}">${i.kategori.isbn}</td>
+                                                                    <td id="txtOzet${i.id}">${i.ozet}</td>
+                                                                    <td id="txtKategori${i.id}">${i.kategori.ad}</td>
+                                                                    <td> <a id="btnEdit${i.id}" class="btn btn-primary" click="duzenle('${i.id}')"> Düzenle </a> <a id="btnSil${i.id}" class="btn btn-danger" onClick="sil('${i.id}')">Sil</a> </td>
+                                                                </tr>`;
                         $("#tableBody").append(satir);
                     }
                 }
@@ -137,7 +136,9 @@
                 data: veri,
                 success: function (res) {
                     $("#txtAd" + res.id).prop('contentEditable', true);
+                    $("#txtAd" + res.id).addClass("beingEdited");
                     $("#txtOzet" + res.id).prop('contentEditable', true);
+                    $("#txtOzet" + res.id).addClass("beingEdited");
                     $("#txtKategori" + res.id).html('');
                     $.ajax({
                         type: "GET",
@@ -170,7 +171,9 @@
                                 data: editText,
                                 success: function (resEdit) {
                                     $("#txtAd" + res.id).prop('contentEditable', false);
+                                    $("#txtAd" + res.id).removeClass("beingEdited");
                                     $("#txtOzet" + res.id).prop('contentEditable', false);
+                                    $("#txtOzet" + res.id).removeClass("beingEdited");
                                     $("#btnEdit" + res.id).removeClass("btn-success").addClass("btn-primary");
                                     $("#btnEdit" + res.id).html("Düzenle");
                                     $("#btnEdit" + res.id).unbind();
@@ -204,5 +207,7 @@
                 }
             });
         }
+
+
     </script>
 }

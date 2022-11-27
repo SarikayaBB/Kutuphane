@@ -20,3 +20,13 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.beingEdited {
+    background-color:darkcyan !important;
+    font-size:20px; 
+    text-align:center;
+    max-width:3rem;
+    max-inline-size:stretch;
+    
+   
+}

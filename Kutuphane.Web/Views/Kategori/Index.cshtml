@@ -1,5 +1,148 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿<div class="table-responsive">
+    <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalCreate">Ekle</button>
+    <table id="kategoriTable" class="table table-primary col-6">
+        <thead>
+            <tr>
+                <th scope="col">Kategori Adi</th>
+                <th scope="col">ISBN</th>
+                <th scope="col">İşlemler</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+</div>
+
+
+<div class="modal fade" id="modalCreate" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="mb-3 row">
+                        <label for="txtAddAd" class="col-4 col-form-label">Kategori Adı Giriniz: </label>
+                        <div class="col-6">
+                            <input type="text" name="txtAddAd" id="txtAddAd" placeholder="Kategori Adı">
+                        </div>
+                    </div>
+                    <div class="mb-3 row">
+                        <label for="txtKategoriIsbn" class="col-4 col-form-label">ISBN Giriniz: </label>
+                        <div class="col-6">
+                            <input name="txtAddIsbn" id="txtAddIsbn" rows="2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" onclick="Ekle()" class="btn btn-primary" id="btnKaydet">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function loadTable() {
+        $("#tableBody").html('');
+        $.ajax({
+            type: "GET",
+            url: "Kategori/GetAll",
+            success: function (res) {
+                for (let i of res) {
+                    var td =
+                        `
+                                    <tr id="tr${i.id}">
+                                        <td id="txtAd${i.id}"> ${i.ad}</td>
+                                        <td id="txtIsbn${i.id}"> ${i.isbn}</td>
+                                        <td>    <a class="btn btn-primary" id="btnEdit${i.id}" onClick="Duzenle('${i.id}')">Düzenle
+                                                </a>
+                                            <a class="btn btn-danger id="btnDelete${i.id}" onClick="Sil('${i.id}')">Sil</a>
+                                        </td>
+                                    </tr>
+                                `;
+                    $("#tableBody").append(td);
+                }
+            }
+        });
+    }
+
+
+    $(document).ready(function () {
+        loadTable();
+    });
+    function Ekle() {
+        var veri = {
+            isbn: $("#txtAddIsbn").val(),
+            ad: $("#txtAddAd").val(),
+        };
+        $.ajax({
+            type: "POST",
+            url: "Kategori/Add",
+            data: veri,
+            success: function (resAdd) {
+                loadTable();
+                $("#modalCreate").modal('hide');
+                $("#txtAddAd").val('');
+                $("#txtAddIsbn").val('');
+            }
+        });
+    }
+
+    function Sil(kategoriId) {
+        var data = {
+            kategoriId: kategoriId
+        };
+        $.ajax({
+            type: "POST",
+            url: "Kategori/Delete",
+            data: data,
+            success: function (resDelete) {
+                loadTable();
+            }
+        });
+    }
+
+   
+
+    function Duzenle(kategoriId) {
+       
+        $("#txtAd" + kategoriId).prop("contentEditable", true);
+        $("#txtAd" + kategoriId).addClass("beingEdited");
+
+        $("#txtIsbn" + kategoriId).prop("contentEditable", true);
+        $("#txtIsbn" + kategoriId).addClass("beingEdited");
+
+
+        $("#btnEdit" + kategoriId).html("Kaydet");
+        $("#btnEdit" + kategoriId).removeClass("btn-primary").addClass("btn-success");
+        $("#btnEdit" + kategoriId).off("onClick");
+        $("#btnEdit" + kategoriId).on("click",function (e) {
+                    
+            console.log("KAYDET TIKLANDI");
+            var data = {
+                ad: $("#txtAd" + kategoriId).html(),
+                isbn: $("#txtIsbn" + kategoriId).html(),
+                kategoriId: kategoriId
+            };
+            console.log(data);
+            $.ajax({
+                type: "POST",
+                url: "Kategori/Edit",
+                data: data,
+                success: function (resEdit) {
+                    $("#txtAd" + kategoriId).prop("contentEditable", false);
+                    $("#txtAd" + kategoriId).removeClass("beingEdited");
+                    $("#txtIsbn" + kategoriId).prop("contentEditable", false);
+                    $("#txtIsbn" + kategoriId).removeClass("beingEdited");
+                    console.log("EDITED");
+                }
+            });
+        });
+    }
+
+</script>
