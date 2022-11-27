@@ -21,7 +21,7 @@ namespace Kutuphane.Web.Controllers
 
         public IActionResult GetAll()
         {
-            return Json(_db.Kitaplar.Include(k => k.Kategori).ToList());
+            return Json(_db.Kitaplar.Include(k => k.Kategori).OrderByDescending(o=>o.DateModified).ToList());
         }
 
         [HttpPost]
@@ -53,7 +53,31 @@ namespace Kutuphane.Web.Controllers
             editedKitap.Ad = kitapAdi.ToString();
             editedKitap.KategoriId = kategoriId.Id;
             _db.SaveChanges();
-            return Json(_db.Kitaplar.Include(k=>k.Kategori).Where(w=>w.Id==kitapId).FirstOrDefault());
+            return Json(_db.Kitaplar.Include(k => k.Kategori).Where(w => w.Id == kitapId).FirstOrDefault());
+        }
+        public IActionResult Delete(Guid kitapId)
+        {
+            Kitap deletedKitap = _db.Kitaplar.Include(k => k.Kategori).FirstOrDefault(f => f.Id == kitapId);
+            _db.Remove(deletedKitap);
+            _db.SaveChanges();
+            return Json(kitapId);
+        }
+        public IActionResult Add(string ad, string ozet, string kategori)
+        {
+            var matchedKategori = _db.Kategoriler.Select(k => new { k.Id, k.Ad }).Where(w => w.Ad == kategori.ToString()).FirstOrDefault();
+            Kitap AddedKitap = new Kitap();
+            AddedKitap.Ad = ad;
+            AddedKitap.Ozet = ozet;
+            AddedKitap.KategoriId = matchedKategori.Id;
+            AddedKitap.DateCreated =DateTime.Now;
+            AddedKitap.DateModified = DateTime.Now;
+            AddedKitap.IsDeleted= false;
+            AddedKitap.IsActive =true;
+            AddedKitap.Id = Guid.NewGuid();
+            _db.Add(AddedKitap);
+            _db.SaveChanges();
+            return Ok();
+
         }
     }
 }

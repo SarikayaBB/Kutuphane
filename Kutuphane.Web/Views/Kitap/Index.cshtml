@@ -1,15 +1,14 @@
-﻿@model List<Kitap>
+﻿<div class="table-responsive">
 
-
-<div class="table-responsive">
     <table id="kitapTable" class="table table-primary table-striped col-6">
         <thead>
+            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalCreate">Ekle</button>
             <tr>
                 <th scope="col">Kitap Adi</th>
+                <th scope="col">ISBN</th>
                 <th scope="col">Ozet</th>
                 <th scope="col">Kategori</th>
                 <th scope="col">İşlemler</th>
-
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -18,22 +17,106 @@
 </div>
 
 
+<div class="modal fade" id="modalCreate" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">Ekle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="container">
+                    
+                        <div class="mb-3 row">
+                            <label for="txtAddAd" class="col-4 col-form-label">Kitap Adı Giriniz: </label>
+                            <div class="col-8">
+                                <input type="text" name="txtAddAd" id="txtAddAd" placeholder="Kitap Adı">
+                            </div>
+                        </div>
+                        <div class="mb-3 row">
+                            <label for="txtAddOzet" class="col-4 col-form-label">Kitap Özeti Giriniz: </label>
+                            <div class="col-8">
+                                <textarea name="txtAddOzet" id="txtAddOzet" rows="2"></textarea>
+                            </div>
+                        </div> <div class="mb-6 row">
+                            <label for="selectKategoriId" class="col-4 col-form-label">Kategori Seçiniz: </label>
+                            <div class="col-6">
+                                <select id="selectKategoriId"></select>
+                            </div>
+                        </div>
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" onclick="Ekle()" class="btn btn-primary btn-lg" id="btnKaydet">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
 @section Scripts{
     <script type="text/javascript">
+
+        function Ekle(){
+            var veri = {
+            ad:$("#txtAddAd").val(),
+            ozet:$("#txtAddOzet").val(),
+            kategori: $(`#selectKategoriId option:selected`).text()
+            };
+            console.log($("#txtAddAd").val());
+            console.log($("#txtAddOzet").val());
+            $.ajax({
+                type:"POST",
+                url:"Kitap/Add",
+                data:veri,
+                success:function(resAdd){
+                    $("#modalCreate").modal('hide');
+                    $("#btnKaydet").unbind();
+                    loadTable();
+                    $("#txtAddAd").val('');
+                    $("#txtAddOzet").val('');
+                }
+            });
+
+        }
+
+
+        function modalDoldur() {
+            $.ajax({
+                type: "GET",
+                url: "Kategori/GetAll",
+                success: function (res) {
+                    res.forEach((element) => {
+                        $("#selectKategoriId").append(`<option value="${element.ad}">${element.ad}</option>`);
+                    })
+                }
+            });
+
+        }
         function loadTable() {
+            $("#tableBody").html('');
             $.ajax({
                 type: "GET",
                 url: "Kitap/GetAll",
                 success: function (res) {
-                   
                     for (let i of res) {
                         var satir = `
-                                <tr>
-                                    <td id="txtAd${i.id}">${i.ad}</td>
-                                    <td id="txtOzet${i.id}">${i.ozet}</td>
-                                    <td id="txtKategori${i.id}">${i.kategori.ad}</td>
-                                    <td> <a id="btnEdit${i.id}" class="btn btn-primary" onClick="duzenle('${i.id}')"> Düzenle </a> </td>
-                                </tr>`;
+                                                        <tr id="tr${i.id}">
+                                                            <td id="txtAd${i.id}">${i.ad}</td>
+                                                            <td id="txtISBN${i.id}">${i.kategori.isbn}</td>
+                                                            <td id="txtOzet${i.id}">${i.ozet}</td>
+                                                            <td id="txtKategori${i.id}">${i.kategori.ad}</td>
+                                                            <td> <a id="btnEdit${i.id}" class="btn btn-primary" onClick="duzenle('${i.id}')"> Düzenle </a> <a id="btnSil${i.id}" class="btn btn-danger" onClick="sil('${i.id}')">Sil</a> </td>
+                                                        </tr>`;
                         $("#tableBody").append(satir);
                     }
                 }
@@ -42,7 +125,7 @@
         $(document).ready(function () {
             loadTable();
             $(".td").css("width", "50%");
-            
+            modalDoldur();
         });
         function duzenle(KitapId) {
             var veri = {
@@ -55,33 +138,21 @@
                 success: function (res) {
                     $("#txtAd" + res.id).prop('contentEditable', true);
                     $("#txtOzet" + res.id).prop('contentEditable', true);
-
                     $("#txtKategori" + res.id).html('');
-                  
-                           $.ajax({
-                type: "GET",
-                url: "Kategori/GetAll",
-                success: function (resKat) {
-                            $("#txtKategori" + res.id).append(` <select id="txtSelect${res.id}">`);
-                            for(let item in resKat){
-                                $("#txtKategori" + res.id).append(`<option value="AD2">AD</option>`);
-                            }
-                            ("#txtKategori" + res.id).append(`</select>`);
-                }
-            });
-                   
-
-
-
-                //    $("#txtKategori" + res.id).html(`
-                //        <select  id="txtSelect${res.kategori.id}">
-                //  <option value="Bilim Kurgu">Bilim Kurgu</option>
-                //  <option value="Fantastik" selected>Fantastik</option>
-                //  <option value="Roman">Roman</option>
-                //</select>`);
-                //    $(`#txtSelect${res.kategori.id} option:selected`).text();
-                    // $("#txtAd" + res.id).css("position","absolute");
-                    // $("#kitapTable").css("box-sizing","border-box");
+                    $.ajax({
+                        type: "GET",
+                        url: "Kategori/GetAll",
+                        success: function (resKategori) {
+                            $("#txtKategori" + res.id).append(`<select id="txtSelect${res.kategori.id}"></select>`);
+                            resKategori.forEach((element) => {
+                                if (res.kategori.ad == element.ad) {
+                                    $("#txtSelect" + res.kategori.id).append(`<option value="${element.ad}" selected>${element.ad}</option>`);
+                                } else {
+                                    $("#txtSelect" + res.kategori.id).append(`<option value="${element.ad}">${element.ad}</option>`);
+                                }
+                            });
+                        }
+                    });
                     $("#btnEdit" + res.id).unbind();
                     $("#btnEdit" + res.id).removeClass("btn-primary").addClass("btn-success");
                     $("#btnEdit" + res.id).html("Kaydet");
@@ -104,6 +175,7 @@
                                     $("#btnEdit" + res.id).html("Düzenle");
                                     $("#btnEdit" + res.id).unbind();
                                     $("#txtKategori" + res.id).html(resEdit.kategori.ad);
+                                    $("#txtISBN" + res.id).html(resEdit.kategori.isbn);
                                 }
                             });
                         });
@@ -111,8 +183,26 @@
                 }
             });
         }
-        function getKategori() {
-    
+        function sil(delId) {
+            var veri = {
+                kitapId: delId
+            };
+            $.ajax({
+                type: "POST",
+                url: "Kitap/FindById",
+                data: veri,
+                success: function (res) {
+                    $("#btnSil" + res.id).unbind();
+                    $.ajax({
+                        type: "POST",
+                        data: veri,
+                        url: "Kitap/Delete",
+                        success: function (resDel) {
+                            loadTable();
+                        }
+                    });
+                }
+            });
         }
     </script>
 }
